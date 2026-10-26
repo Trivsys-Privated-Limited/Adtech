@@ -1,26 +1,172 @@
 @import "tailwindcss";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
+/* ------------------------------------------------------------------
+   Adtech design tokens
+   Dark blue is the foundation; red is reserved for CTAs, selected
+   states and small accents.
+------------------------------------------------------------------- */
+@theme {
+  /* Surfaces */
+  --color-ink-950: #07111f; /* page background */
+  --color-ink-900: #0b1830; /* secondary background */
+  --color-ink-800: #101f39; /* cards */
+  --color-ink-700: #172a4a; /* raised / hover surfaces */
+
+  /* Brand */
+  --color-red-400: #f46572;
+  --color-red-500: #f04452; /* primary red: accents, focus, highlights */
+  --color-red-600: #d92d41; /* button fill (white text passes AA) */
+  --color-red-700: #c22639; /* button hover / pressed */
+  --color-blue-300: #8db0ea; /* blue as readable text */
+  --color-blue-500: #315eaa; /* electric blue accent (decorative) */
+
+  /* Text */
+  --color-fg: #f8fafc;
+  --color-muted: #a8b4c8;
+  --color-subtle: #7f8ba0;
+
+  /* Lines */
+  --color-line: rgb(148 163 184 / 0.16);
+  --color-line-strong: rgb(148 163 184 / 0.28);
+
+  /* Type */
+  --font-sans: var(--font-geist-sans), ui-sans-serif, system-ui, sans-serif;
+  --font-mono: var(--font-geist-mono), ui-monospace, SFMono-Regular, monospace;
+
+  --text-display: clamp(2.25rem, 1.3rem + 3.3vw, 4.25rem);
+  --text-display--line-height: 1.03;
+  --text-display--letter-spacing: -0.035em;
+  --text-heading: clamp(1.875rem, 1.35rem + 2.2vw, 3.25rem);
+  --text-heading--line-height: 1.08;
+  --text-heading--letter-spacing: -0.03em;
+  --text-title: clamp(1.25rem, 1.1rem + 0.5vw, 1.5rem);
+  --text-title--line-height: 1.25;
+  --text-title--letter-spacing: -0.015em;
+  --text-lead: clamp(1.0625rem, 1rem + 0.3vw, 1.25rem);
+  --text-lead--line-height: 1.6;
+
+  /* Shape */
+  --radius-sm: 6px;
+  --radius-md: 10px;
+  --radius-lg: 16px;
+  --radius-xl: 24px;
+
+  /* Depth */
+  --shadow-card: inset 0 1px 0 rgb(255 255 255 / 0.04), 0 24px 48px -28px rgb(0 0 0 / 0.7);
+  --shadow-cta: 0 10px 30px -12px rgb(240 68 82 / 0.55);
+
+  /* Motion */
+  --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-in-out-soft: cubic-bezier(0.65, 0, 0.35, 1);
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+@utility container-site {
+  width: 100%;
+  max-width: 76rem;
+  margin-inline: auto;
+  padding-inline: 1rem;
+  @media (width >= 40rem) {
+    padding-inline: 1.5rem;
+  }
+  @media (width >= 64rem) {
+    padding-inline: 2rem;
   }
 }
 
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+/* Vertical rhythm for top-level sections */
+@utility section-y {
+  padding-block: clamp(5rem, 3.5rem + 6vw, 9rem);
+}
+
+@utility eyebrow {
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  line-height: 1rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--color-muted);
+}
+
+@layer base {
+  html {
+    color-scheme: dark;
+    background: var(--color-ink-950);
+    -webkit-text-size-adjust: 100%;
+  }
+
+  body {
+    background: var(--color-ink-950);
+    color: var(--color-fg);
+    font-family: var(--font-sans);
+    font-feature-settings: "ss01", "cv11";
+    text-rendering: optimizeLegibility;
+    overflow-x: clip;
+  }
+
+  ::selection {
+    background: rgb(240 68 82 / 0.35);
+    color: var(--color-fg);
+  }
+
+  :focus-visible {
+    outline: 2px solid var(--color-red-500);
+    outline-offset: 3px;
+    border-radius: 4px;
+  }
+
+  [id] {
+    scroll-margin-top: 5.5rem;
+  }
+
+  @media (prefers-reduced-motion: no-preference) {
+    html {
+      scroll-behavior: smooth;
+    }
+  }
+}
+
+/* ------------------------------------------------------------------
+   Scroll reveal. Content is only hidden once JS has marked the
+   document (html.js) and the user allows motion, so pages stay
+   fully readable without JavaScript or with reduced motion.
+------------------------------------------------------------------- */
+@media (prefers-reduced-motion: no-preference) {
+  .js [data-reveal] {
+    opacity: 0;
+    transform: translate3d(0, 18px, 0);
+    transition:
+      opacity 0.8s var(--ease-out-expo),
+      transform 0.8s var(--ease-out-expo);
+    transition-delay: calc(var(--reveal-delay, 0) * 90ms);
+  }
+
+  .js [data-reveal].is-revealed {
+    opacity: 1;
+    transform: none;
+  }
+
+  /* Hero entrance runs in CSS so the headline never waits on hydration */
+  .hero-enter {
+    animation: hero-enter 0.9s var(--ease-out-expo) both;
+    animation-delay: calc(var(--enter-delay, 0) * 80ms + 60ms);
+  }
+}
+
+@keyframes hero-enter {
+  from {
+    opacity: 0;
+    transform: translate3d(0, 20px, 0);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+/* Subtle engineering grid used behind the hero and contact sections */
+.bg-grid {
+  background-image:
+    linear-gradient(to right, rgb(148 163 184 / 0.07) 1px, transparent 1px),
+    linear-gradient(to bottom, rgb(148 163 184 / 0.07) 1px, transparent 1px);
+  background-size: 64px 64px;
 }
