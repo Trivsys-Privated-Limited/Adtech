@@ -14,10 +14,9 @@ export const siteConfig = {
   url: process.env.NEXT_PUBLIC_SITE_URL?.replace(/\/$/, "") || null,
 
   contact: {
-    /** PLACEHOLDER: replace with the real inbox (uses the reserved .example TLD). */
-    email: "hello@adtech.example",
+    email: "myadtech@gmail.com",
     /** Optional. Rendered only when set. */
-    phone: null as string | null,
+    phone: "571-589-7200" as string | null,
     /** Optional. Rendered only when set. Do not add a location that isn't real. */
     location: null as string | null,
   },

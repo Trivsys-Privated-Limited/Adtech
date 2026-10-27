@@ -150,14 +150,17 @@ test.describe("contact form", () => {
     await page.getByLabel("Project details").fill("We need a new marketing site and customer portal for our product.");
   }
 
-  test("is marked as a preview with a placeholder inbox before submitting", async ({ page }) => {
+  test("is marked as a preview and shows the real email and phone", async ({ page }) => {
     await gotoHydrated(page, "/#contact");
     const contact = page.locator("#contact");
     await expect(contact.getByText("Preview form.")).toBeVisible();
     await expect(contact.getByText("won't reach us")).toBeVisible();
-    // The address is labelled wherever it appears: contact section and footer.
-    await expect(contact.locator('a[href^="mailto:"]').getByText("Placeholder")).toBeVisible();
-    await expect(page.locator("footer").first().locator('a[href^="mailto:"]').getByText("Placeholder")).toBeVisible();
+    // The real contact details appear in the contact section and footer, with no placeholder label.
+    for (const area of [contact, page.locator("footer").first()]) {
+      await expect(area.locator('a[href="mailto:myadtech@gmail.com"]').first()).toBeVisible();
+      await expect(area.locator('a[href="tel:571-589-7200"]')).toContainText("571-589-7200");
+    }
+    await expect(page.getByText("Placeholder", { exact: true })).toHaveCount(0);
   });
 
   test("reports honestly when submissions are not configured", async ({ page }) => {
@@ -168,8 +171,8 @@ test.describe("contact form", () => {
       timeout: 15_000,
     });
     await expect(page.getByText("your message was sent")).toHaveCount(0);
-    // The fallback address in the error is labelled too.
-    await expect(page.locator("#contact").getByRole("alert").getByText("Placeholder")).toBeVisible();
+    // The error offers the real address as a fallback.
+    await expect(page.locator("#contact").getByRole("alert").locator('a[href="mailto:myadtech@gmail.com"]')).toBeVisible();
   });
 
   test("shows success only after the API confirms delivery", async ({ page }) => {

@@ -1,4 +1,4 @@
-import { ArrowUpRight, Mail } from "lucide-react";
+import { ArrowUpRight, Mail, Phone } from "lucide-react";
 import Link from "next/link";
 import { CurrentYear } from "@/components/layout/CurrentYear";
 import { Newsletter } from "@/components/sections/Newsletter";
@@ -72,7 +72,8 @@ export function SiteFooter() {
             </li>
             {siteConfig.contact.phone ? (
               <li>
-                <a href={`tel:${siteConfig.contact.phone}`} className={linkClass}>
+                <a href={`tel:${siteConfig.contact.phone}`} className={`${linkClass} inline-flex items-center gap-2`}>
+                  <Phone className="size-4 shrink-0 text-red-500" aria-hidden="true" />
                   {siteConfig.contact.phone}
                 </a>
               </li>

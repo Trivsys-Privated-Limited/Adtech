@@ -1,4 +1,4 @@
-import { Mail } from "lucide-react";
+import { Mail, Phone } from "lucide-react";
 import type { CSSProperties } from "react";
 import { ContactForm } from "@/components/sections/ContactForm";
 import { ContactEmail } from "@/components/ui/ContactEmail";
@@ -48,7 +48,7 @@ export function Contact({ index, titleAs: Title = "h2" }: SectionProps) {
 
           <a
             href={`mailto:${siteConfig.contact.email}`}
-            className="mt-10 inline-flex items-center gap-3 break-all rounded-md text-fg transition-colors hover:text-red-400"
+            className="mt-10 flex w-fit items-center gap-3 break-all rounded-md text-fg transition-colors hover:text-red-400"
           >
             <span className="grid size-10 shrink-0 place-items-center rounded-md border border-line bg-ink-800 text-red-500">
               <Mail className="size-4" aria-hidden="true" />
@@ -57,6 +57,17 @@ export function Contact({ index, titleAs: Title = "h2" }: SectionProps) {
               <ContactEmail />
             </span>
           </a>
+          {siteConfig.contact.phone ? (
+            <a
+              href={`tel:${siteConfig.contact.phone}`}
+              className="mt-4 flex w-fit items-center gap-3 rounded-md text-fg transition-colors hover:text-red-400"
+            >
+              <span className="grid size-10 shrink-0 place-items-center rounded-md border border-line bg-ink-800 text-red-500">
+                <Phone className="size-4" aria-hidden="true" />
+              </span>
+              {siteConfig.contact.phone}
+            </a>
+          ) : null}
         </div>
 
         <div data-reveal style={{ "--reveal-delay": 1 } as CSSProperties}>

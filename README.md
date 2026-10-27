@@ -54,9 +54,9 @@ The notice is decided when the page is built, so set `CONTACT_WEBHOOK_URL` **bef
 `npm run build` (or restart `npm run dev`). Only a true/false flag reaches the browser;
 the URL itself stays on the server.
 
-While `siteConfig.contact.email` uses the reserved `.example` domain, every place the
-address appears (contact section, footer, form error) shows a "Placeholder" label. The
-label disappears once a real address is set in `src/config/site.ts`.
+The contact email (`myadtech@gmail.com`) and phone (`571-589-7200`) are set in
+`src/config/site.ts`. If the email is ever set to a reserved `.example` address, every
+place it appears is labelled "Placeholder" automatically.
 
 ### Newsletter
 
@@ -118,7 +118,7 @@ tracking or other tools.
 
 All copy lives in `src/content` and `src/config`, separate from presentation:
 
-- `src/config/site.ts`: company name, description, **contact email (placeholder)**, optional phone/location, social URLs (render only when set)
+- `src/config/site.ts`: company name, description, contact email and phone, optional location, social URLs (render only when set)
 - `src/content/services.ts`: the six services and contact-form project types
 - `src/content/work.ts`: case studies. **The current entries are labelled concept projects.** Replace them with real work and set `isConcept: false`
 - `src/content/company.ts`: capabilities strip, principles, process steps, About copy
