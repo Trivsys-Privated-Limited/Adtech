@@ -19,7 +19,7 @@ const subscribeNoop = () => () => {};
 export function NewsletterForm({
   signupsEnabled,
 }: {
-  /** False until NEWSLETTER_WEBHOOK_URL is configured; shows a preview notice. */
+  /** False where the PHP endpoint isn't deployed; shows a preview notice. */
   signupsEnabled: boolean;
 }) {
   const [email, setEmail] = useState("");
@@ -46,7 +46,7 @@ export function NewsletterForm({
     setStatus({ state: "submitting" });
 
     try {
-      const response = await fetch("/api/newsletter", {
+      const response = await fetch("/api/newsletter.php", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email: value, website: honeypot ?? "" }),

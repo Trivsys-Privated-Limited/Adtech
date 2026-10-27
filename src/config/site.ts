@@ -10,8 +10,8 @@ export const siteConfig = {
   description:
     "Adtech builds intelligent software, modern digital platforms, and scalable technology solutions that help ambitious businesses innovate and grow.",
 
-  /** Production origin, e.g. https://adtech.com. Set NEXT_PUBLIC_SITE_URL. */
-  url: process.env.NEXT_PUBLIC_SITE_URL?.replace(/\/$/, "") || null,
+  /** Production origin. NEXT_PUBLIC_SITE_URL overrides it, e.g. for a staging domain. */
+  url: process.env.NEXT_PUBLIC_SITE_URL?.replace(/\/$/, "") || ("https://adtechcorp.co" as string | null),
 
   contact: {
     email: "myadtech@gmail.com",
@@ -36,18 +36,13 @@ export const siteConfig = {
 export const contactEmailIsPlaceholder = siteConfig.contact.email.toLowerCase().endsWith(".example");
 
 /**
- * Whether the contact form can deliver messages. Only this boolean reaches
- * the client; the webhook URL itself stays server-side. Evaluated when the
- * page is built, so set CONTACT_WEBHOOK_URL before `npm run build`.
+ * Whether the contact and newsletter forms can deliver messages. They post to
+ * the PHP scripts in public/api, which email the inbox above and only run on a
+ * PHP host such as Hostinger. Set these to false to show the "Preview" notices
+ * when deploying somewhere PHP doesn't run.
  */
-export const contactSubmissionsEnabled = Boolean(process.env.CONTACT_WEBHOOK_URL);
-
-/**
- * Whether newsletter sign-ups reach a real list. Same rules as above: only the
- * boolean reaches the client, and it is evaluated at build time, so set
- * NEWSLETTER_WEBHOOK_URL before `npm run build`.
- */
-export const newsletterSignupsEnabled = Boolean(process.env.NEWSLETTER_WEBHOOK_URL);
+export const contactSubmissionsEnabled = true;
+export const newsletterSignupsEnabled = true;
 
 /**
  * First-visit welcome message. It appears at most once per browser within the

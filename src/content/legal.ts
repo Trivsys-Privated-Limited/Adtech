@@ -68,14 +68,14 @@ export const privacyPolicy: LegalDoc = {
       title: "Contact-form submissions",
       body: [
         "When you send the contact form, we use your details to read and reply to your enquiry and, if you ask us to, to prepare a proposal.",
-        "Submissions are checked on our server and then passed to the business inbox or customer-management service we use to receive enquiries. The address of that service is never exposed in your browser.",
+        "Submissions are checked on our web server and then emailed to our business inbox. They are not stored on the website itself.",
       ],
     },
     {
       id: "newsletter",
       title: "Newsletter",
       body: [
-        "If you sign up for our newsletter, we use your email address only to send it. Sign-ups are passed from our server to the email platform we use to send it.",
+        "If you sign up for our newsletter, we use your email address only to send it. Sign-ups are checked on our web server and emailed to our business inbox, and we add your address to our mailing list.",
         "You can unsubscribe at any time using the unsubscribe link in any newsletter email or by contacting us, and we will stop sending it to you.",
       ],
     },
@@ -122,7 +122,7 @@ export const privacyPolicy: LegalDoc = {
       id: "security",
       title: "Security",
       body: [
-        "We take reasonable steps to protect the information you send us. Form submissions are validated on our server and the credentials for the services that receive them are kept server-side, never in the browser.",
+        "We take reasonable steps to protect the information you send us. Form submissions are sent over an encrypted (HTTPS) connection and checked on our server before they are emailed to us.",
         "No website or method of transmission is completely secure, so we cannot guarantee absolute security. Access to our inbox, enquiry and newsletter accounts is limited to the people who need it and protected by strong passwords and, where available, two-factor authentication.",
       ],
     },
@@ -133,8 +133,8 @@ export const privacyPolicy: LegalDoc = {
         "We rely on a small number of service providers to run this website and respond to you. They process information on our behalf:",
         {
           list: [
-            "Website hosting: a cloud hosting provider that serves the website and may store server logs in the United States.",
-            "Enquiry handling: the business inbox or customer-management service that receives contact-form submissions.",
+            "Website hosting: our web hosting provider, which serves the website, sends form submissions to our inbox and may keep server logs.",
+            "Email: the email provider that hosts our business inbox, where enquiries and sign-ups are received.",
             "Newsletter delivery: the email platform that sends our newsletter.",
           ],
         },

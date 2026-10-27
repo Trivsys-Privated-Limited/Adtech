@@ -1,5 +1,6 @@
 /**
- * Newsletter sign-up rules shared by the client form and /api/newsletter.
+ * Newsletter sign-up rules used by the client form and mirrored in
+ * public/api/newsletter.php.
  */
 import { EMAIL_PATTERN, contactLimits } from "@/lib/contact";
 
@@ -10,7 +11,7 @@ export function validateNewsletterEmail(value: string): string | undefined {
   return undefined;
 }
 
-/** Response shape returned by /api/newsletter. */
+/** Response shape returned by public/api/newsletter.php. */
 export type NewsletterResponse =
   | { ok: true }
   | { ok: false; error: "validation"; message: string }

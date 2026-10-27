@@ -9,78 +9,74 @@ Tailwind CSS v4, React Three Fiber, and Motion.
 
 ```bash
 npm install
-cp .env.example .env.local   # optional, see "Configuration"
 npm run dev                  # http://localhost:3000
 ```
 
-| Script               | Purpose                                     |
-| -------------------- | ------------------------------------------- |
-| `npm run dev`        | Development server                          |
-| `npm run build`      | Production build (includes type checking)   |
-| `npm run start`      | Serve the production build                  |
-| `npm run lint`       | ESLint                                      |
-| `npm run typecheck`  | TypeScript, no emit                         |
-| `npm run test:e2e`   | Playwright end-to-end tests (build first)   |
+| Script               | Purpose                                                  |
+| -------------------- | -------------------------------------------------------- |
+| `npm run dev`        | Development server                                       |
+| `npm run build`      | Static export to `out/` (includes type checking)         |
+| `npm run lint`       | ESLint                                                   |
+| `npm run typecheck`  | TypeScript, no emit                                      |
+| `npm run test:e2e`   | Playwright end-to-end tests (build first)                |
 
 End-to-end tests need a browser. Either run `npx playwright install chromium` once,
 or use an installed browser: `PW_CHANNEL=msedge npm run test:e2e` (or `chrome`).
 
+## Deploying to Hostinger
+
+The site is a static export (`output: "export"` in `next.config.ts`) for Hostinger
+shared hosting at **https://adtechcorp.co**. There is no Node.js server.
+
+1. `npm run build`. The whole site is written to `out/`.
+2. In hPanel, open **File Manager → public_html**, delete the old site files, and upload
+   the **contents** of `out/` (not the folder itself). Uploading a zip of `out/` and
+   choosing **Extract** is quickest. Include the hidden `.htaccess` file.
+3. In hPanel, make sure **SSL** is active for the domain. `.htaccess` redirects every
+   request to HTTPS.
+
+`public/.htaccess` (copied into `out/`) serves the 404 page, forces HTTPS, sets
+security and cache headers, and serves the extension-less `opengraph-image` as PNG.
+
+`npm run start` does not work with a static export. Preview a build by uploading it, or
+with any static file server pointed at `out/` (forms need PHP, see below).
+
 ## Configuration
 
-| Variable                 | Scope       | Purpose                                                                                   |
-| ------------------------ | ----------- | ----------------------------------------------------------------------------------------- |
-| `NEXT_PUBLIC_SITE_URL`   | public      | Production origin. Enables canonical URLs and absolute sitemap/robots/Open Graph URLs.    |
-| `CONTACT_WEBHOOK_URL`    | server only | Receives contact form submissions as JSON.                                                |
-| `CONTACT_WEBHOOK_SECRET` | server only | Optional. Sent as `Authorization: Bearer <secret>` to the webhook.                        |
-| `NEWSLETTER_WEBHOOK_URL`    | server only | Receives newsletter sign-ups as JSON.                                                  |
-| `NEWSLETTER_WEBHOOK_SECRET` | server only | Optional. Sent as `Authorization: Bearer <secret>` to the newsletter webhook.          |
+| Setting                 | Where                 | Purpose                                                              |
+| ----------------------- | --------------------- | -------------------------------------------------------------------- |
+| Site URL                | `src/config/site.ts`  | `https://adtechcorp.co`. Used for canonical, sitemap, robots and Open Graph URLs. `NEXT_PUBLIC_SITE_URL` overrides it at build time. |
+| Email, phone, address   | `src/config/site.ts`  | Shown in the footer, contact section and legal pages.                |
+| Form inbox              | `public/api/_mail.php`| `RECIPIENT`: where contact and newsletter emails are sent.           |
 
-### Contact form
-
-`src/app/api/contact/route.ts` is the integration boundary. It validates every submission
-with the same rules as the client (`src/lib/contact.ts`), drops honeypot spam, then
-`POST`s this JSON to `CONTACT_WEBHOOK_URL`:
-
-```json
-{ "name": "", "email": "", "company": "", "projectType": "", "details": "", "source": "adtech-website", "submittedAt": "ISO-8601" }
-```
-
-Point it at a CRM, a Zapier/Make webhook, a Slack workflow, or your own email-sending
-endpoint. **Until it is configured, a "Preview form" notice is shown above the form, the
-API returns `503`, and the form tells visitors their message was not sent** (with a
-mailto fallback). It never shows a fake success.
-
-The notice is decided when the page is built, so set `CONTACT_WEBHOOK_URL` **before**
-`npm run build` (or restart `npm run dev`). Only a true/false flag reaches the browser;
-the URL itself stays on the server.
-
-The contact email (`myadtech@gmail.com`) and phone (`571-589-7200`) are set in
+The contact email (`myadtech@gmail.com`), phone (`571-589-7200`) and address are set in
 `src/config/site.ts`. If the email is ever set to a reserved `.example` address, every
 place it appears is labelled "Placeholder" automatically.
 
-### Newsletter
+### Contact form and newsletter
 
-The sign-up form at the top of the footer (every page) posts to
-`src/app/api/newsletter/route.ts`. No newsletter provider is wired in; the route is a
-provider-agnostic boundary like the contact form. It validates the address
-(`src/lib/newsletter.ts`), drops honeypot spam, rejects oversized bodies, then `POST`s
-this JSON to `NEWSLETTER_WEBHOOK_URL`:
+Both forms post JSON to small PHP scripts in `public/api/`, which Hostinger runs:
 
-```json
-{ "email": "", "source": "adtech-website", "subscribedAt": "ISO-8601" }
-```
+- `contact.php` validates the enquiry with the same rules as the client
+  (`src/lib/contact.ts`; the project-type list comes from `out/api/project-types.json`,
+  generated at build time from `src/content/services.ts`), drops honeypot spam, and
+  emails it to `RECIPIENT` with the visitor's address as Reply-To.
+- `newsletter.php` validates the address (`src/lib/newsletter.ts`) and emails the
+  sign-up to the same inbox. Add sign-ups to your email platform by hand, or forward
+  these emails into it.
 
-Point it at a Zapier/Make webhook that adds the contact to your email platform
-(Mailchimp, Brevo, ConvertKit, Buttondown, …) or at your own endpoint. Turn on
-**double opt-in** at the provider so only confirmed owners of an address join the list.
-Provider API keys belong in that integration or in server-only env vars, never in
-client code. **Until it is configured, the form shows a "Preview" notice, the API returns
-`503`, and visitors are told they were not subscribed.** Success is shown only when the
-webhook responds with a 2xx. As with the contact form, set the variable before
-`npm run build`.
+Mail is sent with PHP `mail()` from `noreply@<your domain>`. For reliable delivery,
+create that mailbox (or any address on the domain) in **hPanel → Emails** so SPF/DKIM
+cover it, and check the spam folder for the first test message. Success is shown only
+when `mail()` reports the message was accepted.
 
-There is no rate limiting. If the endpoint attracts abuse, add it at the edge (your
-host's firewall / bot protection) or in the receiving service.
+The scripts don't run under `npm run dev`, so the forms show a "something went wrong"
+error with the email fallback locally. If the site is ever moved to a host without PHP,
+set `contactSubmissionsEnabled` / `newsletterSignupsEnabled` to `false` in
+`src/config/site.ts` to show the "Preview" notices instead.
+
+There is no rate limiting. If the forms attract abuse, turn on Hostinger's bot
+protection or add a CAPTCHA.
 
 ### Welcome message
 
@@ -100,15 +96,12 @@ when storage is unavailable, so it can't reappear on every page. It uses the nat
 `<dialog>` element: focus stays inside, Escape and the backdrop close it, and the page
 behind is inert. The entrance animation is disabled under `prefers-reduced-motion`.
 
-### Legal pages (drafts)
+### Legal pages
 
-`/privacy-policy` and `/terms` are **draft templates that need review by Adtech and a
-lawyer before launch**. Their copy is in `src/content/legal.ts`. Every detail the business
-must supply (legal entity, address, hosting and email providers, retention periods,
-applicable law and jurisdiction, liability wording, publication date) is written as
-`{{TODO: …}}` and shows on the page as a visible "To confirm" badge, with a "Draft pending
-legal review" notice at the top. Replace each marker with real text. Once none remain,
-remove the notice in `src/components/legal/LegalDocument.tsx`.
+`/privacy-policy` and `/terms` copy is in `src/content/legal.ts`. All business details
+are filled in. Any detail written as `{{TODO: …}}` shows on the page as a visible "To
+confirm" badge, and a "Draft pending legal review" notice appears at the top while any
+remain. Have both pages reviewed by a lawyer.
 
 The privacy policy describes how the site currently works: no analytics, no cookies of
 its own, one `localStorage` item for the welcome message. Update it if you add analytics,
@@ -130,7 +123,7 @@ All copy lives in `src/content` and `src/config`, separate from presentation:
 
 ```
 src/
-  app/                 routes, metadata, robots, sitemap, OG image, icon, /api/contact
+  app/                 routes, metadata, robots, sitemap, OG image, icon, api/project-types.json
     services/ solutions/ work/ about/ contact/
                        inner pages, composed from the same section components as Home
     work/[slug]/       case study pages (statically generated)

@@ -1,6 +1,6 @@
 /**
- * Contact form schema shared by the client form and the /api/contact route,
- * so validation rules can never drift apart.
+ * Contact form schema used by the client form. public/api/contact.php applies
+ * the same rules on the server, so update both together.
  */
 import { projectTypes } from "@/content/services";
 
@@ -75,7 +75,7 @@ export function validateContact(payload: ContactPayload): ContactErrors {
   return errors;
 }
 
-/** Response shape returned by /api/contact. */
+/** Response shape returned by public/api/contact.php. */
 export type ContactResponse =
   | { ok: true }
   | { ok: false; error: "validation"; fields: ContactErrors }

@@ -71,7 +71,7 @@ export function ContactForm({
   submissionsEnabled,
   emailLink,
 }: {
-  /** False until CONTACT_WEBHOOK_URL is configured; shows a notice above the form. */
+  /** False where the PHP endpoint isn't deployed; shows a notice above the form. */
   submissionsEnabled: boolean;
   /** Server-rendered mailto link (includes the placeholder label when applicable). */
   emailLink: ReactNode;
@@ -130,7 +130,7 @@ export function ContactForm({
     setStatus({ state: "submitting" });
 
     try {
-      const response = await fetch("/api/contact", {
+      const response = await fetch("/api/contact.php", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ ...payload, website: honeypot ?? "" }),

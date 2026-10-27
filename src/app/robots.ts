@@ -1,6 +1,9 @@
 import type { MetadataRoute } from "next";
 import { metadataBaseUrl } from "@/config/site";
 
+// Required by the static export (output: "export").
+export const dynamic = "force-static";
+
 export default function robots(): MetadataRoute.Robots {
   return {
     rules: { userAgent: "*", allow: "/", disallow: "/api/" },

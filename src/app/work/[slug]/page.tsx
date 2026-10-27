@@ -7,9 +7,9 @@ import { ProjectPreview } from "@/components/work/ProjectPreview";
 import { siteConfig } from "@/config/site";
 import { caseStudies, getCaseStudy } from "@/content/work";
 
-// Case studies are fully static. This also makes unknown slugs wait for the
-// complete render, so notFound() responds with a real 404 status.
-export const ensureStatic = "navigation";
+// Case studies are fully static: only the slugs below are exported, and any
+// other slug falls through to the 404 page.
+export const dynamicParams = false;
 
 export function generateStaticParams() {
   return caseStudies.map((study) => ({ slug: study.slug }));

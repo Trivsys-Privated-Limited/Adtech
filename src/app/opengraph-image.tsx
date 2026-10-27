@@ -3,6 +3,8 @@ import { ImageResponse } from "next/og";
 export const alt = "Adtech — Engineering digital experiences that move business forward";
 export const size = { width: 1200, height: 630 };
 export const contentType = "image/png";
+// Required by the static export (output: "export").
+export const dynamic = "force-static";
 
 export default function OpengraphImage() {
   return new ImageResponse(
