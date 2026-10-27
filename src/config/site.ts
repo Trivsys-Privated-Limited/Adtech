@@ -18,7 +18,7 @@ export const siteConfig = {
     /** Optional. Rendered only when set. */
     phone: "571-589-7200" as string | null,
     /** Optional. Rendered only when set. Do not add a location that isn't real. */
-    location: null as string | null,
+    location: "8205 Aspen Glen CT, Alexandria, VA 22309, United States" as string | null,
   },
 
   /** Social profiles render only when a real URL is configured. */

@@ -1,4 +1,4 @@
-import { Mail, Phone } from "lucide-react";
+import { Mail, MapPin, Phone } from "lucide-react";
 import type { CSSProperties } from "react";
 import { ContactForm } from "@/components/sections/ContactForm";
 import { ContactEmail } from "@/components/ui/ContactEmail";
@@ -67,6 +67,14 @@ export function Contact({ index, titleAs: Title = "h2" }: SectionProps) {
               </span>
               {siteConfig.contact.phone}
             </a>
+          ) : null}
+          {siteConfig.contact.location ? (
+            <p className="mt-4 flex w-fit items-center gap-3 text-fg">
+              <span className="grid size-10 shrink-0 place-items-center rounded-md border border-line bg-ink-800 text-red-500">
+                <MapPin className="size-4" aria-hidden="true" />
+              </span>
+              {siteConfig.contact.location}
+            </p>
           ) : null}
         </div>
 

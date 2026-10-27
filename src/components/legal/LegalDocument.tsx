@@ -1,4 +1,4 @@
-import { FileWarning, Mail, Phone } from "lucide-react";
+import { FileWarning, Mail, MapPin, Phone } from "lucide-react";
 import Link from "next/link";
 import { Fragment, type ReactNode } from "react";
 import { InnerPage } from "@/components/layout/InnerPage";
@@ -56,6 +56,12 @@ function Block({ block }: { block: LegalBlock }): ReactNode {
   );
 }
 
+/** True while any "{{TODO: ...}}" detail in the document is still unfilled. */
+function hasTodos(doc: LegalDoc) {
+  const texts = [doc.lastUpdated, ...doc.sections.flatMap((s) => s.body.flatMap((b) => (typeof b === "string" ? b : b.list)))];
+  return texts.some((text) => text.includes("{{TODO:"));
+}
+
 /** Shared layout for the Privacy Policy and Terms & Conditions pages. */
 export function LegalDocument({ doc }: { doc: LegalDoc }) {
   return (
@@ -76,17 +82,19 @@ export function LegalDocument({ doc }: { doc: LegalDoc }) {
             <p className="mt-4 text-sm text-subtle">
               Last updated: <Inline text={doc.lastUpdated} />
             </p>
-            <div
-              role="note"
-              className="mt-8 flex gap-3 rounded-md border border-blue-300/30 bg-blue-500/10 p-4 text-sm leading-relaxed text-fg"
-            >
-              <FileWarning className="mt-0.5 size-4 shrink-0 text-blue-300" aria-hidden="true" />
-              <p>
-                <strong className="font-semibold">Draft pending legal review.</strong> This page has
-                not yet been reviewed by a lawyer. Items marked &ldquo;To confirm&rdquo; need
-                Adtech&apos;s details before it is final.
-              </p>
-            </div>
+            {hasTodos(doc) ? (
+              <div
+                role="note"
+                className="mt-8 flex gap-3 rounded-md border border-blue-300/30 bg-blue-500/10 p-4 text-sm leading-relaxed text-fg"
+              >
+                <FileWarning className="mt-0.5 size-4 shrink-0 text-blue-300" aria-hidden="true" />
+                <p>
+                  <strong className="font-semibold">Draft pending legal review.</strong> This page has
+                  not yet been reviewed by a lawyer. Items marked &ldquo;To confirm&rdquo; need
+                  Adtech&apos;s details before it is final.
+                </p>
+              </div>
+            ) : null}
           </header>
 
           <div className="mt-14 grid gap-12 lg:grid-cols-[15rem_minmax(0,1fr)] lg:gap-16">
@@ -159,8 +167,11 @@ export function LegalDocument({ doc }: { doc: LegalDoc }) {
                     {siteConfig.contact.phone}
                   </a>
                 ) : null}
-                <p className="mt-5 text-sm text-subtle">
-                  Postal address: <Inline text="{{TODO: registered business address}}" />
+                <p className="mt-3 flex w-fit items-center gap-3 text-fg">
+                  <span className="grid size-10 shrink-0 place-items-center rounded-md border border-line bg-ink-900 text-red-500">
+                    <MapPin className="size-4" aria-hidden="true" />
+                  </span>
+                  <Inline text={siteConfig.contact.location ?? "{{TODO: registered business address}}"} />
                 </p>
               </section>
             </article>
