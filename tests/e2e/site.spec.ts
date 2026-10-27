@@ -272,16 +272,17 @@ test.describe("legal pages", () => {
     ["Privacy Policy", "/privacy-policy", "Privacy Policy"],
     ["Terms & Conditions", "/terms", "Terms & Conditions"],
   ] as const) {
-    test(`${label} is linked from the footer and marked as a draft`, async ({ page }) => {
+    test(`${label} is linked from the footer and fully filled in`, async ({ page }) => {
       await gotoHydrated(page, "/");
       await page.getByRole("navigation", { name: "Legal" }).getByRole("link", { name: label }).click();
       await expect(page).toHaveURL(new RegExp(`${path}$`));
       await expect(page.getByRole("heading", { level: 1 })).toContainText(title);
       await expect(page).toHaveTitle(`${title} | Adtech`);
       await expect(page.locator('meta[name="description"]')).toHaveAttribute("content", /.{40,}/);
-      // Unknown business details are visibly flagged rather than invented.
-      await expect(page.getByRole("note")).toContainText("Draft pending legal review");
-      expect(await page.locator("[data-todo]").count()).toBeGreaterThan(0);
+      // Every business detail is filled in, so the draft notice and "To confirm" badges are gone.
+      await expect(page.getByText("Draft pending legal review")).toHaveCount(0);
+      await expect(page.locator("[data-todo]")).toHaveCount(0);
+      await expect(page.locator("#contact-us")).toContainText("Alexandria, VA 22309");
       // The table of contents jumps to sections on the same page.
       const toc = page.getByRole("navigation", { name: "On this page" });
       await toc.getByRole("link", { name: "Contact us" }).click();
