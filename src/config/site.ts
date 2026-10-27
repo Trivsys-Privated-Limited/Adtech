@@ -43,5 +43,28 @@ export const contactEmailIsPlaceholder = siteConfig.contact.email.toLowerCase().
  */
 export const contactSubmissionsEnabled = Boolean(process.env.CONTACT_WEBHOOK_URL);
 
+/**
+ * Whether newsletter sign-ups reach a real list. Same rules as above: only the
+ * boolean reaches the client, and it is evaluated at build time, so set
+ * NEWSLETTER_WEBHOOK_URL before `npm run build`.
+ */
+export const newsletterSignupsEnabled = Boolean(process.env.NEWSLETTER_WEBHOOK_URL);
+
+/**
+ * First-visit welcome message. It appears at most once per browser within the
+ * cooldown, never on the excluded routes, and never when browser storage is
+ * unavailable (so it can't reappear on every page load).
+ */
+export const welcomeModalConfig = {
+  enabled: true,
+  /** Days before the same browser may see the message again. */
+  cooldownDays: 30,
+  /** Wait before showing, so it never interrupts the first paint. */
+  delayMs: 1200,
+  /** Routes where the message never appears: forms and legal pages. */
+  excludedPaths: ["/contact", "/privacy-policy", "/terms"],
+  storageKey: "adtech:welcome-seen-at",
+};
+
 /** Absolute base URL for metadata; falls back to localhost during development. */
 export const metadataBaseUrl = new URL(siteConfig.url ?? "http://localhost:3000");

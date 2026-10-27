@@ -39,7 +39,7 @@ for (const width of [320, 375, 768, 1024, 1440]) {
   });
 }
 
-/** Every route reachable from the main navigation, with text expected in its <h1>. */
+/** Every route reachable from the main and footer navigation, with text expected in its <h1>. */
 const ROUTES: [path: string, h1: RegExp][] = [
   ["/", /Engineering Digital Experiences/],
   ["/services", /End-to-end engineering/],
@@ -47,6 +47,8 @@ const ROUTES: [path: string, h1: RegExp][] = [
   ["/work", /The kind of products we build/],
   ["/about", /Thoughtful engineering/],
   ["/contact", /Have an Idea\?/],
+  ["/privacy-policy", /Privacy Policy/],
+  ["/terms", /Terms & Conditions/],
 ];
 
 test("desktop navigation opens inner pages and marks the current one", async ({ page }) => {
@@ -260,4 +262,208 @@ test("hero falls back gracefully without WebGL", async ({ page }) => {
   await expect(page.locator("#top canvas")).toHaveCount(0);
   await expect(page.locator("#top svg[viewBox='0 0 400 400']")).toBeVisible();
   expect(errors).toEqual([]);
+});
+
+test.describe("legal pages", () => {
+  for (const [label, path, title] of [
+    ["Privacy Policy", "/privacy-policy", "Privacy Policy"],
+    ["Terms & Conditions", "/terms", "Terms & Conditions"],
+  ] as const) {
+    test(`${label} is linked from the footer and marked as a draft`, async ({ page }) => {
+      await gotoHydrated(page, "/");
+      await page.getByRole("navigation", { name: "Legal" }).getByRole("link", { name: label }).click();
+      await expect(page).toHaveURL(new RegExp(`${path}$`));
+      await expect(page.getByRole("heading", { level: 1 })).toContainText(title);
+      await expect(page).toHaveTitle(`${title} | Adtech`);
+      await expect(page.locator('meta[name="description"]')).toHaveAttribute("content", /.{40,}/);
+      // Unknown business details are visibly flagged rather than invented.
+      await expect(page.getByRole("note")).toContainText("Draft pending legal review");
+      expect(await page.locator("[data-todo]").count()).toBeGreaterThan(0);
+      // The table of contents jumps to sections on the same page.
+      const toc = page.getByRole("navigation", { name: "On this page" });
+      await toc.getByRole("link", { name: "Contact us" }).click();
+      await expect(page).toHaveURL(new RegExp(`${path}#contact-us$`));
+      await expect(page.locator("#contact-us")).toBeInViewport();
+    });
+  }
+
+  test("the privacy policy describes the site's real storage use", async ({ page }) => {
+    await page.goto("/privacy-policy");
+    await expect(page.locator("#cookies")).toContainText("does not set cookies of its own");
+    await expect(page.locator("#cookies")).toContainText("adtech:welcome-seen-at");
+  });
+});
+
+test("sitemap lists the legal pages", async ({ request }) => {
+  const xml = await (await request.get("/sitemap.xml")).text();
+  for (const path of ["/privacy-policy", "/terms", "/services", "/work/fleet-operations-platform"]) {
+    expect(xml).toContain(`${path}</loc>`);
+  }
+});
+
+test.describe("newsletter sign-up", () => {
+  const form = (page: Page) => page.getByRole("form", { name: "Newsletter sign-up" });
+
+  test("validates the email address accessibly", async ({ page }) => {
+    await gotoHydrated(page, "/");
+    const email = form(page).getByLabel("Email address");
+    await form(page).getByRole("button", { name: "Subscribe" }).click();
+    await expect(email).toBeFocused();
+    await expect(email).toHaveAttribute("aria-invalid", "true");
+    await expect(form(page).getByText("Please enter your email address.")).toBeVisible();
+
+    await email.fill("not-an-email");
+    await form(page).getByRole("button", { name: "Subscribe" }).click();
+    await expect(form(page).getByText(/valid email address/)).toBeVisible();
+    await expect(email).toHaveAttribute("aria-describedby", /newsletter-email-error/);
+
+    await email.fill("jordan@example.com");
+    await expect(email).toHaveAttribute("aria-invalid", "false");
+  });
+
+  test("is marked as a preview and never fakes a subscription", async ({ page }) => {
+    await gotoHydrated(page, "/");
+    await expect(form(page).getByText("Sign-up isn't connected yet")).toBeVisible();
+    await form(page).getByLabel("Email address").fill("jordan@example.com");
+    await form(page).getByRole("button", { name: "Subscribe" }).click();
+    await expect(form(page).getByRole("alert")).toContainText("you have not been subscribed", { timeout: 15_000 });
+    await expect(page.getByText("your sign-up was received")).toHaveCount(0);
+  });
+
+  test("shows success only after the API confirms", async ({ page }) => {
+    await page.route("**/api/newsletter", (route) => route.fulfill({ status: 200, json: { ok: true } }));
+    await gotoHydrated(page, "/services");
+    await form(page).getByLabel("Email address").fill("jordan@example.com");
+    await form(page).getByRole("button", { name: "Subscribe" }).click();
+    await expect(page.locator("#newsletter").getByRole("status")).toContainText("your sign-up was received");
+  });
+
+  test("does not interfere with the contact form", async ({ page }) => {
+    const newsletterRequests: string[] = [];
+    page.on("request", (req) => req.url().includes("/api/newsletter") && newsletterRequests.push(req.url()));
+    await gotoHydrated(page, "/contact");
+    await form(page).getByLabel("Email address").fill("jordan@example.com");
+    await page.getByRole("button", { name: "Send project details" }).click();
+    // Only the contact form submits and validates; the newsletter keeps its value and stays quiet.
+    await expect(page.getByLabel("Name")).toBeFocused();
+    await expect(page.getByText("Please enter your name.")).toBeVisible();
+    await expect(form(page).getByLabel("Email address")).toHaveValue("jordan@example.com");
+    await expect(form(page).getByLabel("Email address")).toHaveAttribute("aria-invalid", "false");
+    await expect(form(page).getByRole("alert")).toBeEmpty();
+    expect(newsletterRequests).toEqual([]);
+  });
+});
+
+test("newsletter API validates input and refuses to fake a subscription", async ({ request }) => {
+  const invalid = await request.post("/api/newsletter", { data: { email: "nope" } });
+  expect(invalid.status()).toBe(422);
+  expect((await invalid.json()).error).toBe("validation");
+
+  const valid = await request.post("/api/newsletter", { data: { email: "jordan@example.com" } });
+  expect(valid.status()).toBe(503);
+  expect((await valid.json()).error).toBe("not_configured");
+
+  // Honeypot submissions are dropped without being forwarded.
+  const bot = await request.post("/api/newsletter", { data: { email: "bot@example.com", website: "spam.example" } });
+  expect(bot.status()).toBe(200);
+
+  const oversized = await request.post("/api/newsletter", { data: { email: "a".repeat(3000) } });
+  expect(oversized.status()).toBe(413);
+});
+
+test.describe("welcome modal", () => {
+  // A first-time visitor: nothing in storage.
+  test.use({ storageState: { cookies: [], origins: [] } });
+  const dialog = (page: Page) => page.getByRole("dialog", { name: /Software engineered for what.s next/ });
+
+  test("appears once on the first visit and closes with Escape", async ({ page }) => {
+    const errors = collectConsoleErrors(page);
+    await gotoHydrated(page, "/");
+    await expect(dialog(page)).toBeVisible();
+    await expect(page.getByRole("button", { name: "Close welcome message" })).toBeFocused();
+
+    // Fits the viewport on every screen size.
+    const box = (await dialog(page).boundingBox())!;
+    const viewport = page.viewportSize()!;
+    expect(box.x).toBeGreaterThanOrEqual(0);
+    expect(box.x + box.width).toBeLessThanOrEqual(viewport.width);
+    expect(box.y + box.height).toBeLessThanOrEqual(viewport.height);
+
+    await page.keyboard.press("Escape");
+    await expect(dialog(page)).toBeHidden();
+
+    // Neither a reload nor client-side navigation brings it back.
+    await gotoHydrated(page, "/");
+    await page.waitForTimeout(2000);
+    await expect(dialog(page)).toBeHidden();
+    await page.locator("footer").getByRole("link", { name: "About", exact: true }).click();
+    await expect(page).toHaveURL(/\/about$/);
+    await page.waitForTimeout(2000);
+    await expect(dialog(page)).toBeHidden();
+    expect(errors).toEqual([]);
+  });
+
+  test("keeps focus inside and closes with the close button", async ({ page }) => {
+    await gotoHydrated(page, "/");
+    await expect(dialog(page)).toBeVisible();
+    for (let i = 0; i < 5; i++) {
+      await page.keyboard.press("Tab");
+      // Focus may pass through the browser chrome, but never lands on the page behind.
+      const behind = await page.evaluate(
+        () => document.activeElement !== document.body && !document.activeElement?.closest("dialog"),
+      );
+      expect(behind).toBe(false);
+    }
+    await page.getByRole("button", { name: "Close welcome message" }).click();
+    await expect(dialog(page)).toBeHidden();
+  });
+
+  test("CTA goes to the services page", async ({ page }) => {
+    await gotoHydrated(page, "/about");
+    await dialog(page).getByRole("link", { name: "Explore our services" }).click();
+    await expect(page).toHaveURL(/\/services$/);
+    await expect(dialog(page)).toBeHidden();
+    await expect(page.getByRole("heading", { level: 1 })).toContainText("End-to-end engineering");
+  });
+
+  test("never appears on the contact form or legal pages", async ({ page }) => {
+    for (const path of ["/contact", "/privacy-policy", "/terms"]) {
+      await gotoHydrated(page, path);
+      await page.waitForTimeout(2000);
+      await expect(dialog(page), path).toBeHidden();
+    }
+  });
+
+  test("does not interrupt someone already typing", async ({ page }) => {
+    await gotoHydrated(page, "/");
+    await page.getByRole("form", { name: "Newsletter sign-up" }).getByLabel("Email address").focus();
+    await page.waitForTimeout(2000);
+    await expect(dialog(page)).toBeHidden();
+  });
+
+  test("stays closed without blocking the page when storage is unavailable", async ({ page }) => {
+    const errors = collectConsoleErrors(page);
+    await page.addInitScript(() => {
+      Object.defineProperty(window, "localStorage", {
+        get() {
+          throw new DOMException("Storage disabled", "SecurityError");
+        },
+      });
+    });
+    await gotoHydrated(page, "/");
+    await page.waitForTimeout(2000);
+    await expect(dialog(page)).toBeHidden();
+    await page.getByRole("link", { name: "Let's Build Something" }).click();
+    await expect(page).toHaveURL(/\/#contact$/);
+    expect(errors).toEqual([]);
+  });
+
+  test("opens without animation under reduced motion", async ({ browser }) => {
+    const context = await browser.newContext({ reducedMotion: "reduce", storageState: { cookies: [], origins: [] } });
+    const page = await context.newPage();
+    await gotoHydrated(page, "/");
+    await expect(dialog(page)).toBeVisible();
+    expect(await page.locator("dialog").evaluate((el) => getComputedStyle(el).animationName)).toBe("none");
+    await context.close();
+  });
 });

@@ -29,3 +29,9 @@ export function isActiveRoute(pathname: string, href: string): boolean {
   if (href === "/") return pathname === "/";
   return pathname === href || pathname.startsWith(`${href}/`);
 }
+
+/** Legal pages, linked from the footer's bottom bar. */
+export const legalNav: NavItem[] = [
+  { label: "Privacy Policy", href: "/privacy-policy" },
+  { label: "Terms & Conditions", href: "/terms" },
+];

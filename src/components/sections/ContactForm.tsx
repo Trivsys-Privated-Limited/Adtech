@@ -2,6 +2,7 @@
 
 import { ArrowRight, CircleAlert, CircleCheck, Info, LoaderCircle } from "lucide-react";
 import { AnimatePresence, motion, useReducedMotion } from "motion/react";
+import Link from "next/link";
 import { useEffect, useRef, useState, useSyncExternalStore, type FormEvent, type ReactNode } from "react";
 import { buttonClasses } from "@/components/ui/Button";
 import { projectTypes } from "@/content/services";
@@ -369,7 +370,11 @@ export function ContactForm({
 
             <div className="flex flex-col-reverse gap-4 pt-1 sm:flex-row sm:items-center sm:justify-between">
               <p className="text-xs leading-relaxed text-subtle">
-                We only use your details to respond to this enquiry.
+                We only use your details to respond to this enquiry. See our{" "}
+                <Link href="/privacy-policy" className="underline underline-offset-4 hover:text-fg">
+                  Privacy Policy
+                </Link>
+                .
               </p>
               <button
                 type="submit"

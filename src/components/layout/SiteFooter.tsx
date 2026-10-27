@@ -1,10 +1,11 @@
 import { ArrowUpRight, Mail } from "lucide-react";
 import Link from "next/link";
 import { CurrentYear } from "@/components/layout/CurrentYear";
+import { Newsletter } from "@/components/sections/Newsletter";
 import { ContactEmail } from "@/components/ui/ContactEmail";
 import { Wordmark } from "@/components/ui/Logo";
 import { siteConfig } from "@/config/site";
-import { footerNav } from "@/content/navigation";
+import { footerNav, legalNav } from "@/content/navigation";
 import { services } from "@/content/services";
 
 const linkClass = "text-sm text-muted transition-colors duration-200 hover:text-fg";
@@ -16,6 +17,7 @@ export function SiteFooter() {
 
   return (
     <footer className="relative border-t border-line bg-ink-900/60">
+      <Newsletter />
       <div className="container-site grid gap-12 py-16 md:grid-cols-2 lg:grid-cols-[1.4fr_1fr_1fr_1.1fr] lg:gap-10 lg:py-20">
         <div className="max-w-sm">
           <Link href="/" aria-label="Adtech — home" className="inline-block rounded-md">
@@ -91,9 +93,22 @@ export function SiteFooter() {
 
       <div className="border-t border-line">
         <div className="container-site flex flex-col gap-4 py-6 text-sm text-subtle sm:flex-row sm:items-center sm:justify-between">
-          <p>
-            © <CurrentYear /> Adtech. All rights reserved.
-          </p>
+          <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:gap-6">
+            <p>
+              © <CurrentYear /> Adtech. All rights reserved.
+            </p>
+            <nav aria-label="Legal">
+              <ul className="flex flex-wrap gap-x-6 gap-y-2">
+                {legalNav.map((item) => (
+                  <li key={item.href}>
+                    <Link href={item.href} className={linkClass}>
+                      {item.label}
+                    </Link>
+                  </li>
+                ))}
+              </ul>
+            </nav>
+          </div>
           {socials.length > 0 ? (
             <ul className="flex flex-wrap gap-x-6 gap-y-2" aria-label="Social media">
               {socials.map((social) => (

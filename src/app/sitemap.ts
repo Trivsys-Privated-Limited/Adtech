@@ -1,6 +1,6 @@
 import type { MetadataRoute } from "next";
 import { metadataBaseUrl } from "@/config/site";
-import { mainNav } from "@/content/navigation";
+import { legalNav, mainNav } from "@/content/navigation";
 import { caseStudies } from "@/content/work";
 
 export default function sitemap(): MetadataRoute.Sitemap {
@@ -10,6 +10,11 @@ export default function sitemap(): MetadataRoute.Sitemap {
       url: url(item.href),
       changeFrequency: "monthly" as const,
       priority: item.href === "/" ? 1 : 0.8,
+    })),
+    ...legalNav.map((item) => ({
+      url: url(item.href),
+      changeFrequency: "yearly" as const,
+      priority: 0.3,
     })),
     ...caseStudies.map((study) => ({
       url: url(`/work/${study.slug}`),

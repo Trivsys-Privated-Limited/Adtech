@@ -2,6 +2,7 @@ import type { Metadata, Viewport } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import { SiteFooter } from "@/components/layout/SiteFooter";
 import { SiteHeader } from "@/components/layout/SiteHeader";
+import { WelcomeModal } from "@/components/layout/WelcomeModal";
 import { RevealObserver } from "@/components/motion/RevealObserver";
 import { metadataBaseUrl, siteConfig } from "@/config/site";
 import "./globals.css";
@@ -70,6 +71,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
         </main>
         <SiteFooter />
         <RevealObserver />
+        <WelcomeModal />
       </body>
     </html>
   );

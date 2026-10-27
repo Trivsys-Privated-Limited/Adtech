@@ -1,6 +1,7 @@
 import { defineConfig, devices } from "@playwright/test";
 
 const PORT = Number(process.env.PORT ?? 3100);
+const BASE_URL = `http://localhost:${PORT}`;
 
 /**
  * End-to-end tests run against the production build (`npm run build` first).
@@ -15,7 +16,13 @@ export default defineConfig({
   expect: { timeout: 10_000 },
   reporter: "list",
   use: {
-    baseURL: `http://localhost:${PORT}`,
+    baseURL: BASE_URL,
+    // Mark the first-visit welcome message as already seen so it doesn't cover
+    // the page under test. Modal tests opt back in with an empty storage state.
+    storageState: {
+      cookies: [],
+      origins: [{ origin: BASE_URL, localStorage: [{ name: "adtech:welcome-seen-at", value: String(Date.now()) }] }],
+    },
     trace: "retain-on-failure",
     ...(process.env.PW_CHANNEL ? { channel: process.env.PW_CHANNEL } : {}),
   },
@@ -25,9 +32,9 @@ export default defineConfig({
   ],
   webServer: {
     command: `npm run start -- -p ${PORT}`,
-    url: `http://localhost:${PORT}`,
+    url: BASE_URL,
     reuseExistingServer: !process.env.CI,
-    // The suite asserts the honest "not configured" contact behaviour.
-    env: { CONTACT_WEBHOOK_URL: "" },
+    // The suite asserts the honest "not configured" contact and newsletter behaviour.
+    env: { CONTACT_WEBHOOK_URL: "", NEWSLETTER_WEBHOOK_URL: "" },
   },
 });

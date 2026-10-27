@@ -23,7 +23,7 @@ export const contactLimits = {
 } as const;
 
 // Pragmatic check: something@domain.tld, no spaces.
-const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
+export const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
 
 export function normalizeContact(input: Partial<Record<ContactField, unknown>>): ContactPayload {
   const text = (value: unknown) => (typeof value === "string" ? value.trim() : "");

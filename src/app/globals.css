@@ -163,6 +163,37 @@
   }
 }
 
+/* ------------------------------------------------------------------
+   Welcome dialog. The page stays put underneath while it is open;
+   the entrance only animates when the user allows motion.
+------------------------------------------------------------------- */
+html:has(.welcome-dialog[open]) {
+  overflow: hidden;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .welcome-dialog[open] {
+    animation: dialog-enter 0.5s var(--ease-out-expo);
+  }
+
+  .welcome-dialog[open]::backdrop {
+    animation: backdrop-enter 0.4s ease-out;
+  }
+}
+
+@keyframes dialog-enter {
+  from {
+    opacity: 0;
+    transform: translate3d(0, 16px, 0) scale(0.98);
+  }
+}
+
+@keyframes backdrop-enter {
+  from {
+    opacity: 0;
+  }
+}
+
 /* Subtle engineering grid used behind the hero and contact sections */
 .bg-grid {
   background-image:
