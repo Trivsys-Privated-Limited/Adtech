@@ -22,7 +22,7 @@ export function Contact({ index, titleAs: Title = "h2" }: SectionProps) {
       <div aria-hidden="true" className="absolute -right-20 bottom-0 -z-10 size-[24rem] rounded-full bg-red-500/10 blur-[120px]" />
 
       <div className="container-site grid gap-14 lg:grid-cols-[0.9fr_1.1fr] lg:gap-16">
-        <div data-reveal>
+        <div data-reveal suppressHydrationWarning>
           <Eyebrow index={index}>Start a project</Eyebrow>
           <Title id="contact-title" className="mt-5 text-heading font-semibold text-balance text-fg">
             Have an Idea? Let&apos;s Engineer What&apos;s Next<span className="text-red-500">.</span>
@@ -78,7 +78,7 @@ export function Contact({ index, titleAs: Title = "h2" }: SectionProps) {
           ) : null}
         </div>
 
-        <div data-reveal style={{ "--reveal-delay": 1 } as CSSProperties}>
+        <div data-reveal suppressHydrationWarning style={{ "--reveal-delay": 1 } as CSSProperties}>
           <ContactForm
             submissionsEnabled={contactSubmissionsEnabled}
             emailLink={

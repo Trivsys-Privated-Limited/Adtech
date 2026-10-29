@@ -72,7 +72,7 @@ export function LegalDocument({ doc }: { doc: LegalDoc }) {
           className="bg-grid absolute inset-x-0 top-0 -z-10 h-[28rem] [mask-image:radial-gradient(ellipse_60%_80%_at_30%_0%,black,transparent)]"
         />
         <div className="container-site">
-          <header data-reveal className="max-w-3xl">
+          <header data-reveal suppressHydrationWarning className="max-w-3xl">
             <Eyebrow>Legal</Eyebrow>
             <h1 id="legal-title" className="mt-5 text-heading font-semibold text-balance text-fg">
               {doc.title}

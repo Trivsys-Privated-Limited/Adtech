@@ -13,7 +13,7 @@ export function Process({ index }: Pick<SectionProps, "index">) {
           title="A clear path from idea to impact."
           description="Six focused stages, each with a defined outcome — so you always know where your project stands and what comes next."
         />
-        <div data-reveal className="mt-14 lg:mt-16">
+        <div data-reveal suppressHydrationWarning className="mt-14 lg:mt-16">
           <ProcessExplorer steps={processSteps} />
         </div>
       </div>

@@ -18,7 +18,7 @@ export function WhyAdtech({ index }: Pick<SectionProps, "index">) {
             title="Built to last, not just to launch."
             description="Great software is the result of many small, disciplined decisions. These are the principles behind ours."
           />
-          <div data-reveal className="mt-9">
+          <div data-reveal suppressHydrationWarning className="mt-9">
             <ButtonLink href="#process" variant="secondary" icon={<ArrowRight className="size-4" />}>
               See how we work
             </ButtonLink>
@@ -30,6 +30,7 @@ export function WhyAdtech({ index }: Pick<SectionProps, "index">) {
             <li
               key={principle.title}
               data-reveal
+              suppressHydrationWarning
               style={{ "--reveal-delay": index % 2 } as CSSProperties}
               className="group grid grid-cols-[3rem_1fr] gap-x-4 border-b border-line py-7 sm:grid-cols-[4.5rem_1fr] sm:py-8"
             >

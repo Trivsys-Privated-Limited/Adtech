@@ -16,6 +16,7 @@ function ServiceCard({ service, index }: { service: Service; index: number }) {
     <article
       id={`service-${service.id}`}
       data-reveal
+      suppressHydrationWarning
       style={{ "--reveal-delay": index % 3 } as CSSProperties}
       className={cx(
         "group relative flex flex-col overflow-hidden rounded-lg border border-line bg-ink-800/70 p-6 shadow-card sm:p-8",
@@ -88,7 +89,7 @@ export function Services({ index, titleAs }: SectionProps) {
             eyebrow="Services"
             title="End-to-end engineering for products that matter."
           />
-          <p data-reveal className="max-w-md text-pretty text-muted lg:pb-2">
+          <p data-reveal suppressHydrationWarning className="max-w-md text-pretty text-muted lg:pb-2">
             From the first prototype to platforms serving at scale, we bring strategy, design and
             engineering together in one accountable team.
           </p>

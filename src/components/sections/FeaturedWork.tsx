@@ -18,6 +18,7 @@ function ProjectCard({ study, featured, index }: { study: CaseStudy; featured?: 
   return (
     <article
       data-reveal
+      suppressHydrationWarning
       style={{ "--reveal-delay": index } as CSSProperties}
       className={cx(
         "group relative rounded-lg border border-line bg-ink-800/50 p-3 transition-colors duration-300 hover:border-line-strong sm:p-4",

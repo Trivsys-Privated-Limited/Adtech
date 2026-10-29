@@ -20,6 +20,7 @@ export function TechStack({ index, titleAs }: SectionProps) {
             <div
               key={category.name}
               data-reveal
+              suppressHydrationWarning
               style={{ "--reveal-delay": index % 3 } as CSSProperties}
               className="grid gap-4 border-b border-line py-7 md:grid-cols-[16rem_1fr] md:items-center md:gap-10"
             >

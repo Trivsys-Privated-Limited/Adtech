@@ -9,6 +9,7 @@ export function CtaBand() {
       <div aria-hidden="true" className="absolute -right-24 bottom-0 -z-10 size-[20rem] rounded-full bg-red-500/10 blur-[110px]" />
       <div
         data-reveal
+        suppressHydrationWarning
         className="container-site flex flex-col gap-8 py-20 sm:py-24 md:flex-row md:items-center md:justify-between"
       >
         <div className="max-w-2xl">

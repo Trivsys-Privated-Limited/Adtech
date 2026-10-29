@@ -60,6 +60,7 @@ export function SectionHeading({
   return (
     <div
       data-reveal
+      suppressHydrationWarning
       className={cx("max-w-3xl", align === "center" && "mx-auto text-center", className)}
     >
       <Eyebrow index={index} className={cx(align === "center" && "justify-center")}>
